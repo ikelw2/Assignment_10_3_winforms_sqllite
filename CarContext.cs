@@ -1,19 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace Assignment_10_3_winforms_sqllite;
 
 public class CarContext : DbContext
 {
     public DbSet<Car> Cars { get; set; } // required for each table... for database context (proxy/wrapper)
+    // expose the car model as a table 'Cars'
 
-    public string DbPath { get; } 
+
+    public string DbPath { get; }
 
     public CarContext()
     {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        DbPath = System.IO.Path.Join(path, "Cars.db");
-        // this tells program where the db file is at
+        // Place the database file in the project directory (source root).
+        // AppContext.BaseDirectory is the output folder (bin/Debug/net10.0/...),
+        // so go up three levels to reach the project folder and put Cars.db there.
+        var projectDir = Path.GetFullPath(Path.Join(AppContext.BaseDirectory, "..", "..", ".."));
+        DbPath = Path.Join(projectDir, "Cars.db");
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -32,4 +37,5 @@ public class CarContext : DbContext
         );
     }
 
-}
+} // after this, go to package manager console and conduct MIGRATION by entering command:
+// Add-Migration AddProductsTable
